@@ -1,0 +1,33 @@
+---
+title: "Class 2019-03-07"
+author: "Ruoqi Zhang"
+date: "3/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gapminder)
+library(tidyverse)
+library(gganimate)
+library(png)
+```
+
+```{r, echo=FALSE, cache=TRUE}
+gapminder %>% 
+  mutate(continent = fct_collapse(continent, Asia = c("Asia", "Oceania"))) %>% 
+  filter(continent != "Europe") %>% 
+  mutate(continent = factor(continent, levels = c("Americas", "Africa", "Asia"))) %>% 
+  group_by(continent, year) %>% 
+  ggplot(aes(x = gdpPercap, y = lifeExp, size = pop, color = country)) +
+    scale_color_manual(values = country_colors) +
+    geom_point(alpha = 0.8, show.legend = FALSE) +
+    scale_x_log10(breaks = c(1000, 10000)) +
+    facet_grid(~continent) +
+    labs(x = "GDP Per Capita",
+         y = "Life Expectancy") +
+    transition_time(year) +
+    ggtitle('The World Gets Better Every Year: {round(frame_time,0)}')
+
+```
+
