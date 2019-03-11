@@ -27,6 +27,7 @@ gapminder %>%
     labs(x = "GDP Per Capita",
          y = "Life Expectancy") +
     transition_time(year) +
+    ease_aes('linear') +
     ggtitle('The World Gets Better Every Year: {round(frame_time,0)}')
 
 ```
