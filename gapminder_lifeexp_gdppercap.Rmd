@@ -1,0 +1,65 @@
+---
+title: "GDP Per Capita vs. Life Expectancy Across Time"
+author: "Ruoqi Zhang"
+date: "3/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gapminder)
+library(tidyverse)
+library(gganimate)
+library(png)
+```
+
+```{r, echo=FALSE, cache=TRUE}
+## We are using gapminder package for this project.
+
+gapminder %>% 
+  
+  # We want to combine Asian and Oceanic countries into the same factor. This
+  # would reduce the number of facets and make the graph more succinct.
+  
+  mutate(continent = fct_collapse(continent, Asia = c("Asia", "Oceania"))) %>%
+  filter(continent != "Europe") %>% 
+  
+  # My changing the factor levels, we change the sequence that different
+  # continents' plots are going to show up on the graph generated.
+  
+  mutate(continent = factor(continent, levels = c("Americas", "Africa", "Asia"))) %>% 
+  group_by(continent, year) %>% 
+  
+  # Using ggplot to generate the plot. Population is proportional to the size of
+  # the dot, and each country has its distinct color, provided by the gapminder
+  # package. The colors parameters are manually specified in scale_color_manual,
+  # and country_colors is a list provided by the gapminder package
+  
+  ggplot(aes(x = gdpPercap, y = lifeExp, size = pop, color = country)) +
+    scale_color_manual(values = country_colors) +
+    geom_point(alpha = 0.8, show.legend = FALSE) +
+  
+  # Change x axis (gdpPercap) into logscale to make the variations more
+  # human-readable.
+  
+    scale_x_log10(breaks = c(1000, 10000)) +
+  
+  # For each continent, create a facet that contains all points for the
+  # countries in that continent.
+  
+    facet_grid(~continent) +
+    labs(x = "GDP Per Capita",
+         y = "Life Expectancy",
+         
+         # Using the {frame_time} parameter provided by gganimate, we are able
+         # to display the time parameter that each frame corresponds to
+         
+         title = 'Life Expectancy and GDP Per Capita Across Time: {round(frame_time,0)}',
+         caption = "Source: Gapminder") +
+    transition_time(year) +
+  
+    # Use linear transition in animation between data points.
+  
+    ease_aes('linear')
+```
+
